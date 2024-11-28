@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake API Example</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #output { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Загрузка данных с Fake API</h1>
+    <button id="loadUsers">Загрузить пользователей</button>
+    <button id="loadPosts">Загрузить посты</button>
+
+    <div id="output"></div>
+
+    <script>
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Сетевая ошибка');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('output').innerText = 'Ошибка загрузки данных: ' + error.message;
+            }
+        }
+
+        document.getElementById('loadUsers').addEventListener('click', async () => {
+            const users = await fetchData('https://jsonplaceholder.typicode.com/users');
+            document.getElementById('output').innerHTML = JSON.stringify(users, null, 2);
+        });
+
+        document.getElementById('loadPosts').addEventListener('click', async () => {
+            const posts = await fetchData('https://jsonplaceholder.typicode.com/posts');
+            document.getElementById('output').innerHTML = JSON.stringify(posts, null, 2);
+        });
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Чат</h1>
+    <input id="msg" autocomplete="off" /><button id="send">Отправить</button>
+    <ul id="messages"></ul>
+
+    <script>
+        const socket = io();
+
+        document.getElementById('send').addEventListener('click', () => {
+            const msg = document.getElementById('msg').value;
+            socket.emit('chatMessage', msg);
+            document.getElementById('msg').value = '';
+        });
+
+        socket.on('chatMessage', (msg) => {
+            const li = document.createElement('li');
+            li.textContent = msg;
+            document.getElementById('messages').appendChild(li);
+        });
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server-Sent Events</title>
+</head>
+<body>
+    <h1>Обновления от сервера</h1>
+    <div id="events"></div>
+
+    <script>
+        const eventSource = new EventSource('/events');
+        eventSource.onmessage = function(event) {
+            const div = document.createElement('div');
+            div.innerText = event.data;
+            document.getElementById('events').appendChild(div);
+        };
+    </script>
+</body>
+</html>
